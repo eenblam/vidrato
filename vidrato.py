@@ -54,7 +54,7 @@ def validate(args):
 
 if __name__ == '__main__':
     parser = ArgumentParser(
-            prog='Vidrato',
+            #prog='Vidrato',
             description='Chorus for your video',
             epilog='Made w/ <3 @ RC'
             )

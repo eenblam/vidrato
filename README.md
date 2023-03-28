@@ -23,7 +23,7 @@ pip3 install -r requirements.txt
 ## Usage
 ```
 $ ./vidrato.py -h
-usage: Vidrato [-h] [-i] [-m] [-f] [-o OUT]
+usage: vidrato.py [-h] [-i] [-m] [-f] [-o OUT] [-l DELAY_LENGTH] [-r DELAY_MULTIPLE] [-j MOD_SPEED] [-d MOD_DEPTH]
 
 Chorus for your video
 
@@ -34,6 +34,14 @@ options:
                         don't mirror output to monitor
   -f, --mirror-to-file  mirror output to file
   -o OUT, --out OUT     Path to output file. Only mp4 supported at present.
+  -l DELAY_LENGTH, --delay-length DELAY_LENGTH
+                        number of frames to delay by
+  -r DELAY_MULTIPLE, --delay-multiple DELAY_MULTIPLE
+                        blue_length = red_length * delay_multiple
+  -j MOD_SPEED, --mod-speed MOD_SPEED
+                        rate of modulation effect
+  -d MOD_DEPTH, --mod-depth MOD_DEPTH
+                        depth of modulation effect (by default, 0, hence off)
 
 Made w/ <3 @ RC
 ```
