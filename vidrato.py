@@ -7,21 +7,26 @@ import pathlib
 import cv2 as cv
 import numpy as np
 
+
 def red_delay_trackbar(x):
     global red_delay_frames
     red_delay_frames = x
+
 
 def delay_ratio_trackbar(ratio):
     global delay_ratio
     delay_ratio = ratio
 
+
 def jitter_speed_trackbar(j):
     global jitter_speed
     jitter_speed = j
 
+
 def jitter_depth_trackbar(jd):
     global jitter_depth
     jitter_depth = jd
+
 
 def bootstrap_trackbars():
     global delay_ratio, jitter_depth, jitter_speed, red_max_frames
@@ -41,6 +46,11 @@ def bootstrap_trackbars():
     cv.setTrackbarPos('Jitter Depth', 'frame', jitter_depth)
 
 
+def validate(args):
+    #TODO validate integer arguments
+    # e.g. none should be negative
+    pass
+
 
 if __name__ == '__main__':
     parser = ArgumentParser(
@@ -59,9 +69,24 @@ if __name__ == '__main__':
             help='mirror output to file')
     parser.add_argument('-o', '--out', type=pathlib.Path,
             help='Path to output file. Only mp4 supported at present.')
+    parser.add_argument('-l', '--delay-length', default=30, type=int,
+            help='number of frames to delay by')
+    parser.add_argument('-r', '--delay-multiple', default=2, type=int,
+            help='blue_length = red_length * delay_multiple')
+    parser.add_argument('-j', '--mod-speed', default=10, type=int,
+            help='rate of modulation effect')
+    parser.add_argument('-d', '--mod-depth', default=0, type=int,
+            help='depth of modulation effect (by default, 0, hence off)')
     args = parser.parse_args()
 
-    #TODO: camera selection, delay ratio, red_max_frames, additional output codecs
+    validate(args)
+
+    delay_length = args.delay_length
+    delay_ratio = args.delay_multiple
+    jitter_speed = args.mod_speed
+    jitter_depth = args.mod_depth
+
+    #TODO: camera selection, additional output codecs
 
     # Select camera 0
     #TODO allow camera selection and fail if unavailable
@@ -74,8 +99,9 @@ if __name__ == '__main__':
     # We need to show at least one frame in order to create trackbars
     cv.imshow('frame', frame)
 
-    delay_ratio = 2
-    red_max_frames = 30
+    #delay_ratio = 2
+    #red_max_frames = 30
+    red_max_frames = delay_length
     blue_max_frames = delay_ratio * red_max_frames
     # Decrement. 0 is no delay, so max range should be highest.
     # Current implementation would be equivalent to 0 mod red_max_frames without decrement.
