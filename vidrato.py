@@ -31,19 +31,16 @@ def jitter_depth_trackbar(jd):
 def bootstrap_trackbars():
     global delay_ratio, jitter_depth, jitter_speed, red_max_frames
 
-    cv.createTrackbar('Red Delay Frames', 'frame', 0, red_max_frames - 1, red_delay_trackbar)
-    cv.setTrackbarPos('Red Delay Frames', 'frame', red_delay_frames)
+    cv.createTrackbar('Red Delay Frames', 'frame', red_max_frames, red_max_frames - 1, red_delay_trackbar)
 
-    cv.createTrackbar('Delay Ratio', 'frame', 0, 10, delay_ratio_trackbar)
-    cv.setTrackbarPos('Delay Ratio', 'frame', delay_ratio)
+    # This can't be 0 because of a divide-by-zero error, so we force this to be positive elsewhere
+    cv.createTrackbar('Delay Ratio', 'frame', delay_ratio, 10, delay_ratio_trackbar)
 
     # Can't be 0 because we'll get a division by 0
-    cv.createTrackbar('Jitter Speed', 'frame', 1, 10, jitter_speed_trackbar)
-    cv.setTrackbarPos('Jitter Speed', 'frame', jitter_speed)
+    cv.createTrackbar('Jitter Speed', 'frame', jitter_speed, 10, jitter_speed_trackbar)
 
     # Tweaking this to allow negative values gives reverse time-travel, but it doesn't look great.
-    cv.createTrackbar('Jitter Depth', 'frame', 0, 100, jitter_depth_trackbar)
-    cv.setTrackbarPos('Jitter Depth', 'frame', jitter_depth)
+    cv.createTrackbar('Jitter Depth', 'frame', jitter_depth, 100, jitter_depth_trackbar)
 
 
 def validate(args):
@@ -72,8 +69,12 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--delay-length', default=30, type=int,
             help='number of frames to delay by')
     parser.add_argument('-r', '--delay-multiple', default=2, type=int,
-            help='blue_length = red_length * delay_multiple')
-    parser.add_argument('-j', '--mod-speed', default=10, type=int,
+            help='blue_length = red_length * delay_multiple. Must be > 0.')
+    # Speed at which red_delay_frames is modulated
+    # Jitter is applied by a Cosine wave with period 1 / (jitter_speed*FPS) frames.
+    # e.g. for 15 FPS, the wave resets every 15 frames (period), so every second (frequency), if jitter_speed=1.
+    # With jitter_speed=2, it resets every 30 frames, which takes two seconds.
+    parser.add_argument('-j', '--mod-speed', default=1, type=int,
             help='rate of modulation effect')
     parser.add_argument('-d', '--mod-depth', default=0, type=int,
             help='depth of modulation effect (by default, 0, hence off)')
@@ -108,14 +109,6 @@ if __name__ == '__main__':
     red_delay_frames = red_max_frames - 1
     blue_delay_frames = blue_max_frames - 1
 
-    # Speed at which red_delay_frames is modulated
-    # Jitter is applied by a Cosine wave with period 1 / (jitter_speed*FPS) frames.
-    # e.g. for 15 FPS, the wave resets every 15 frames (period), so every second (frequency), if jitter_speed=1.
-    # With jitter_speed=2, it resets every 30 frames, which takes two seconds.
-    jitter_speed = 1
-    # Depth of 0 to start with no jitter
-    jitter_depth = 0
-
     # Initialize ring buffers
     red_queue = [np.zeros((y,x)) for _ in range(red_max_frames)]
     blue_queue = [np.zeros((y,x)) for _ in range(blue_max_frames)]
@@ -140,6 +133,9 @@ if __name__ == '__main__':
         try:
             ret, frame = cap.read()
 
+            # Don't allow divide by zero
+            # Sadly, we can't require the trackbar min to be anything but zero
+            jitter_speed = max(jitter_speed, 1)
             jitter = (jitter_depth * ((math.sin(2 * math.pi * time_track / (jitter_speed * fps)) + 1) / 2)) / 100
 
             # We write, then read. In the case that red_w = red_r, we have a delay time of 0.
