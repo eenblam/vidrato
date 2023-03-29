@@ -9,7 +9,7 @@ import numpy as np
 
 
 def red_delay_trackbar(length):
-    global red_delay_frames
+    global red_delay_frames, delay_multiple
     red_delay_frames = length
 
 
@@ -44,6 +44,8 @@ def bootstrap_trackbars():
 
 
 if __name__ == '__main__':
+    DELAY_MULTIPLE_MAX = 10
+
     parser = ArgumentParser(
             #prog='Vidrato',
             description='Chorus for your video',
@@ -102,11 +104,11 @@ if __name__ == '__main__':
     cv.imshow('frame', frame)
 
     red_max_frames = delay_length
-    blue_max_frames = delay_multiple * red_max_frames
+    blue_max_frames = DELAY_MULTIPLE_MAX * red_max_frames
     # Decrement. 0 is no delay, so max range should be highest.
     # Current implementation would be equivalent to 0 mod red_max_frames without decrement.
     red_delay_frames = red_max_frames - 1
-    blue_delay_frames = blue_max_frames - 1
+    blue_delay_frames = (delay_length * delay_multiple) - 1
 
     # Initialize ring buffers
     red_queue = [np.zeros((y,x)) for _ in range(red_max_frames)]
