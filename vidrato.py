@@ -31,7 +31,7 @@ def mod_depth_trackbar(depth):
 def bootstrap_trackbars():
     global delay_multiple, mod_depth, mod_speed, red_max_frames
 
-    cv.createTrackbar('Red Delay Frames', 'frame', red_max_frames, red_max_frames - 1, red_delay_trackbar)
+    cv.createTrackbar('Red Delay Time (frames)', 'frame', red_max_frames, red_max_frames - 1, red_delay_trackbar)
 
     # This can't be 0 because of a divide-by-zero error, so we force this to be positive elsewhere
     cv.createTrackbar('Delay Multiple', 'frame', delay_multiple, 10, delay_multiple_trackbar)
