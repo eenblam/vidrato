@@ -128,7 +128,7 @@ if __name__ == '__main__':
     if args.out is not None:
         # Write at half FPS, since I seem to be dropping frames here
         #TODO support additional codecs
-        output = cv.VideoWriter(args.out,
+        output = cv.VideoWriter(str(args.out),
                 cv.VideoWriter_fourcc(*'mp4v'), fps / 2, (x, y))
 
     if args.interactive:
