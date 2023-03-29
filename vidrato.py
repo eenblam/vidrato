@@ -8,24 +8,24 @@ import cv2 as cv
 import numpy as np
 
 
-def red_delay_trackbar(x):
+def red_delay_trackbar(length):
     global red_delay_frames
-    red_delay_frames = x
+    red_delay_frames = length
 
 
-def delay_multiple_trackbar(ratio):
+def delay_multiple_trackbar(multiple):
     global delay_multiple
-    delay_multiple = ratio
+    delay_multiple = multiple
 
 
-def mod_speed_trackbar(j):
+def mod_speed_trackbar(speed):
     global mod_speed
-    mod_speed = j
+    mod_speed = speed
 
 
-def mod_depth_trackbar(jd):
+def mod_depth_trackbar(depth):
     global mod_depth
-    mod_depth = jd
+    mod_depth = depth
 
 
 def bootstrap_trackbars():
