@@ -121,7 +121,7 @@ if __name__ == '__main__':
         # Write at half FPS, since I seem to be dropping frames here
         #TODO support additional codecs
         output = cv.VideoWriter(str(args.out),
-                cv.VideoWriter_fourcc(*'mp4v'), fps / 2, (x, y))
+                cv.VideoWriter_fourcc(*'mp4v'), fps, (x, y))
 
     if args.interactive:
         bootstrap_trackbars()
