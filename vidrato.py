@@ -13,9 +13,9 @@ def red_delay_trackbar(x):
     red_delay_frames = x
 
 
-def delay_ratio_trackbar(ratio):
-    global delay_ratio
-    delay_ratio = ratio
+def delay_multiple_trackbar(ratio):
+    global delay_multiple
+    delay_multiple = ratio
 
 
 def jitter_speed_trackbar(j):
@@ -29,12 +29,12 @@ def jitter_depth_trackbar(jd):
 
 
 def bootstrap_trackbars():
-    global delay_ratio, jitter_depth, jitter_speed, red_max_frames
+    global delay_multiple, jitter_depth, jitter_speed, red_max_frames
 
     cv.createTrackbar('Red Delay Frames', 'frame', red_max_frames, red_max_frames - 1, red_delay_trackbar)
 
     # This can't be 0 because of a divide-by-zero error, so we force this to be positive elsewhere
-    cv.createTrackbar('Delay Ratio', 'frame', delay_ratio, 10, delay_ratio_trackbar)
+    cv.createTrackbar('Delay Multiple', 'frame', delay_multiple, 10, delay_multiple_trackbar)
 
     # Can't be 0 because we'll get a division by 0
     cv.createTrackbar('Jitter Speed', 'frame', jitter_speed, 10, jitter_speed_trackbar)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
             help='Path to output file. Only mp4 supported at present.')
     parser.add_argument('-l', '--delay-length', default=30, type=int,
             help='number of frames to delay by')
-    parser.add_argument('-r', '--delay-multiple', default=2, type=int,
+    parser.add_argument('-x', '--delay-multiple', default=2, type=int,
             help='blue_length = red_length * delay_multiple. Must be > 0.')
     # Speed at which red_delay_frames is modulated
     # Jitter is applied by a Cosine wave with period 1 / (jitter_speed*FPS) frames.
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     delay_length = args.delay_length
-    delay_ratio = args.delay_multiple
+    delay_multiple = args.delay_multiple
     jitter_speed = args.mod_speed
     jitter_depth = args.mod_depth
 
@@ -99,10 +99,8 @@ if __name__ == '__main__':
     # We need to show at least one frame in order to create trackbars
     cv.imshow('frame', frame)
 
-    #delay_ratio = 2
-    #red_max_frames = 30
     red_max_frames = delay_length
-    blue_max_frames = delay_ratio * red_max_frames
+    blue_max_frames = delay_multiple * red_max_frames
     # Decrement. 0 is no delay, so max range should be highest.
     # Current implementation would be equivalent to 0 mod red_max_frames without decrement.
     red_delay_frames = red_max_frames - 1
@@ -153,7 +151,7 @@ if __name__ == '__main__':
             new_blue_frame = np.copy(blue_queue[blue_r])
             frame[...,B] = new_blue_frame
             blue_w = (blue_w + 1) % blue_max_frames
-            blue_delay_frames = delay_ratio * red_delay_frames
+            blue_delay_frames = delay_multiple * red_delay_frames
             if jitter_depth == 0:
                 blue_r = (blue_w - blue_delay_frames) % blue_max_frames
             else:
