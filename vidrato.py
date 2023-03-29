@@ -18,18 +18,18 @@ def delay_multiple_trackbar(ratio):
     delay_multiple = ratio
 
 
-def jitter_speed_trackbar(j):
-    global jitter_speed
-    jitter_speed = j
+def mod_speed_trackbar(j):
+    global mod_speed
+    mod_speed = j
 
 
-def jitter_depth_trackbar(jd):
-    global jitter_depth
-    jitter_depth = jd
+def mod_depth_trackbar(jd):
+    global mod_depth
+    mod_depth = jd
 
 
 def bootstrap_trackbars():
-    global delay_multiple, jitter_depth, jitter_speed, red_max_frames
+    global delay_multiple, mod_depth, mod_speed, red_max_frames
 
     cv.createTrackbar('Red Delay Frames', 'frame', red_max_frames, red_max_frames - 1, red_delay_trackbar)
 
@@ -37,10 +37,10 @@ def bootstrap_trackbars():
     cv.createTrackbar('Delay Multiple', 'frame', delay_multiple, 10, delay_multiple_trackbar)
 
     # Can't be 0 because we'll get a division by 0
-    cv.createTrackbar('Jitter Speed', 'frame', jitter_speed, 10, jitter_speed_trackbar)
+    cv.createTrackbar('Jitter Speed', 'frame', mod_speed, 10, mod_speed_trackbar)
 
     # Tweaking this to allow negative values gives reverse time-travel, but it doesn't look great.
-    cv.createTrackbar('Jitter Depth', 'frame', jitter_depth, 100, jitter_depth_trackbar)
+    cv.createTrackbar('Jitter Depth', 'frame', mod_depth, 100, mod_depth_trackbar)
 
 
 if __name__ == '__main__':
@@ -60,15 +60,17 @@ if __name__ == '__main__':
             help='mirror output to file')
     parser.add_argument('-o', '--out', type=pathlib.Path,
             help='Path to output file. Only mp4 supported at present.')
+
     parser.add_argument('-l', '--delay-length', default=30, type=int,
             help='number of frames to delay by')
     parser.add_argument('-x', '--delay-multiple', default=2, type=int,
             help='blue_length = red_length * delay_multiple. Must be > 0.')
+
     # Speed at which red_delay_frames is modulated
-    # Jitter is applied by a Cosine wave with period 1 / (jitter_speed*FPS) frames.
-    # e.g. for 15 FPS, the wave resets every 15 frames (period), so every second (frequency), if jitter_speed=1.
-    # With jitter_speed=2, it resets every 30 frames, which takes two seconds.
-    parser.add_argument('-j', '--mod-speed', default=1, type=int,
+    # Jitter is applied by a Cosine wave with period 1 / (mod_speed*FPS) frames.
+    # e.g. for 15 FPS, the wave resets every 15 frames (period), so every second (frequency), if mod_speed=1.
+    # With mod_speed=2, it resets every 30 frames, which takes two seconds.
+    parser.add_argument('-s', '--mod-speed', default=1, type=int,
             help='rate of modulation effect')
     parser.add_argument('-d', '--mod-depth', default=0, type=int,
             help='depth of modulation effect (by default, 0, hence off)')
@@ -83,8 +85,8 @@ if __name__ == '__main__':
 
     delay_length = args.delay_length
     delay_multiple = args.delay_multiple
-    jitter_speed = args.mod_speed
-    jitter_depth = args.mod_depth
+    mod_speed = args.mod_speed
+    mod_depth = args.mod_depth
 
     #TODO: camera selection, additional output codecs
 
@@ -132,8 +134,8 @@ if __name__ == '__main__':
 
             # Don't allow divide by zero
             # Sadly, we can't require the trackbar min to be anything but zero
-            jitter_speed = max(jitter_speed, 1)
-            jitter = (jitter_depth * ((math.sin(2 * math.pi * time_track / (jitter_speed * fps)) + 1) / 2)) / 100
+            mod_speed = max(mod_speed, 1)
+            jitter = (mod_depth * ((math.sin(2 * math.pi * time_track / (mod_speed * fps)) + 1) / 2)) / 100
 
             # We write, then read. In the case that red_w = red_r, we have a delay time of 0.
             # This is also why trackbar only goes to red_max_frames - 1:
@@ -142,7 +144,7 @@ if __name__ == '__main__':
             new_red_frame = np.copy(red_queue[red_r])
             frame[...,R] = new_red_frame
             red_w = (red_w + 1) % red_max_frames
-            if jitter_depth == 0:
+            if mod_depth == 0:
                 red_r = (red_w - red_delay_frames) % red_max_frames
             else:
                 red_r = (red_w - int(red_delay_frames * jitter)) % red_max_frames
@@ -152,7 +154,7 @@ if __name__ == '__main__':
             frame[...,B] = new_blue_frame
             blue_w = (blue_w + 1) % blue_max_frames
             blue_delay_frames = delay_multiple * red_delay_frames
-            if jitter_depth == 0:
+            if mod_depth == 0:
                 blue_r = (blue_w - blue_delay_frames) % blue_max_frames
             else:
                 blue_r = (blue_w - int(blue_delay_frames * jitter)) % blue_max_frames
