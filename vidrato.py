@@ -37,10 +37,10 @@ def bootstrap_trackbars():
     cv.createTrackbar('Delay Multiple', 'frame', delay_multiple, 10, delay_multiple_trackbar)
 
     # Can't be 0 because we'll get a division by 0
-    cv.createTrackbar('Jitter Speed', 'frame', mod_speed, 10, mod_speed_trackbar)
+    cv.createTrackbar('Mod Speed', 'frame', mod_speed, 10, mod_speed_trackbar)
 
     # Tweaking this to allow negative values gives reverse time-travel, but it doesn't look great.
-    cv.createTrackbar('Jitter Depth', 'frame', mod_depth, 100, mod_depth_trackbar)
+    cv.createTrackbar('Mod Depth', 'frame', mod_depth, 100, mod_depth_trackbar)
 
 
 if __name__ == '__main__':
