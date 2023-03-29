@@ -43,12 +43,6 @@ def bootstrap_trackbars():
     cv.createTrackbar('Jitter Depth', 'frame', jitter_depth, 100, jitter_depth_trackbar)
 
 
-def validate(args):
-    #TODO validate integer arguments
-    # e.g. none should be negative
-    pass
-
-
 if __name__ == '__main__':
     parser = ArgumentParser(
             #prog='Vidrato',
@@ -80,7 +74,12 @@ if __name__ == '__main__':
             help='depth of modulation effect (by default, 0, hence off)')
     args = parser.parse_args()
 
-    validate(args)
+    # Validation:
+    if args.delay_multiple < 1:
+        import sys
+        print(f'Error: delay multiple cannot be less than 1. Got {args.delay_multiple}.', file=sys.stderr)
+        #parser.print_help(file=sys.stderr)
+        sys.exit(1)
 
     delay_length = args.delay_length
     delay_ratio = args.delay_multiple
