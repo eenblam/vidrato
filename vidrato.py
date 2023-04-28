@@ -7,6 +7,7 @@ import pathlib
 import cv2 as cv
 import numpy as np
 
+FRAME = 'vidrato'
 
 def red_delay_trackbar(length):
     global red_delay_frames, delay_multiple
@@ -31,16 +32,16 @@ def mod_depth_trackbar(depth):
 def bootstrap_trackbars():
     global delay_multiple, mod_depth, mod_speed, red_max_frames
 
-    cv.createTrackbar('Red Delay Time (frames)', 'frame', red_max_frames, red_max_frames - 1, red_delay_trackbar)
+    cv.createTrackbar('Red Delay Time (frames)', FRAME, red_max_frames, red_max_frames - 1, red_delay_trackbar)
 
     # This can't be 0 because of a divide-by-zero error, so we force this to be positive elsewhere
-    cv.createTrackbar('Delay Multiple', 'frame', delay_multiple, 10, delay_multiple_trackbar)
+    cv.createTrackbar('Delay Multiple', FRAME, delay_multiple, 10, delay_multiple_trackbar)
 
     # Can't be 0 because we'll get a division by 0
-    cv.createTrackbar('Mod Speed', 'frame', mod_speed, 10, mod_speed_trackbar)
+    cv.createTrackbar('Mod Speed', FRAME, mod_speed, 10, mod_speed_trackbar)
 
     # Tweaking this to allow negative values gives reverse time-travel, but it doesn't look great.
-    cv.createTrackbar('Mod Depth', 'frame', mod_depth, 100, mod_depth_trackbar)
+    cv.createTrackbar('Mod Depth', FRAME, mod_depth, 100, mod_depth_trackbar)
 
 
 if __name__ == '__main__':
@@ -101,7 +102,7 @@ if __name__ == '__main__':
     _, frame = cap.read()
     y,x,_ = frame.shape
     # We need to show at least one frame in order to create trackbars
-    cv.imshow('frame', frame)
+    cv.imshow(FRAME, frame)
 
     red_max_frames = delay_length
     blue_max_frames = DELAY_MULTIPLE_MAX * red_max_frames
@@ -167,7 +168,7 @@ if __name__ == '__main__':
                 # Only compute if requested
                 flipped = np.flip(frame, axis=1)
 
-            cv.imshow('frame', flipped if args.mirror_monitor else frame)
+            cv.imshow(FRAME, flipped if args.mirror_monitor else frame)
 
             if args.out is not None:
                 output.write(flipped if args.mirror_file else frame)
