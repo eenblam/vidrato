@@ -10,8 +10,16 @@ In addition to delay time and delay ratio, users can tweak the parameters of a m
 basically a sine wave that the delay time is multiplied by.
 Both the rate and depth of this modulation (the sine wave) can be edited live via the faders.
 
+Note that, at a modulation depth of zero, the user manually controls the delay time.
+For non-zero mod depth, the modulated delay time is computed as
+`(sin(phase)+1)/2 * (mod_depth/100) * delay_length`.
+So, a mod depth of 50 and a delay length of 20 means the delay time will oscillate from 0 to 10.
+
 Optionally, users can record their session by passing a file path to  the `-o`/`--out` option.
 This does not currently allow recording the interactive faders, only the resulting video.
+
+By default, output to monitor is mirrored and output written to a file is not.
+These behaviors can be inverted with te `-m` and `-f` flags, respectively.
 
 ## Setup
 ```
